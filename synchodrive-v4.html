@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SYNCHODRIVE — One Rhythm. One Engine.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,600;0,700;1,300&family=DM+Sans:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════
+   ROOT
+═══════════════════════════════════════════ */
+:root {
+  --bg0:#07080c; --bg1:#0c0e14; --bg2:#10121a; --bg3:#151820;
+  --border:rgba(255,255,255,.07); --border2:rgba(255,255,255,.13);
+  --cyber:#00F2FF; --cyber2:#00c8d4;
+  --amber:#FF9F0A; --green:#34C759; --red:#FF3B30; --purple:#BF5AF2;
+  --chrome-hi:#f0f4f8; --chrome-mid:#c4cad2; --chrome-low:#7a8290;
+  --font-d:'Chakra Petch',sans-serif;
+  --font-b:'DM Sans',sans-serif;
+  --font-m:'Space Mono',monospace;
+  --nav-h:56px;
+  --bc-h:32px;
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+html { scroll-behavior:smooth }
+
+body {
+  background: var(--bg0);
+  background-image:
+    repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(255,255,255,.008) 3px, rgba(255,255,255,.008) 6px),
+    repeating-linear-gradient(135deg, transparent, transparent 3px, rgba(255,255,255,.005) 3px, rgba(255,255,255,.005) 6px);
+  background-size: 8px 8px;
+  color: var(--chrome-mid);
+  font-family: var(--font-b);
+  font-size: 16px; line-height: 1.75;
+  overflow-x: hidden;
+  cursor: none;
+}
+img { max-width:100% }
+a { text-decoration:none; color:inherit }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width:3px }
+::-webkit-scrollbar-track { background:var(--bg1) }
+::-webkit-scrollbar-thumb { background:rgba(0,242,255,.25); border-radius:3px }
+
+/* CURSOR — hidden on touch */
+.cur { position:fixed; top:0; left:0; width:9px; height:9px; background:var(--cyber); border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); box-shadow:0 0 8px var(--cyber),0 0 16px var(--cyber); transition:width .15s,height .15s }
+.cur-ring { position:fixed; top:0; left:0; width:30px; height:30px; border:1px solid rgba(0,242,255,.38); border-radius:50%; pointer-events:none; z-index:9998; transform:translate(-50%,-50%) }
+
+/* ═══════════════════════════════════════════
+   LOADER
+═══════════════════════════════════════════ */
+#loader { position:fixed; inset:0; z-index:10000; background:var(--bg0); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; transition:opacity .8s,visibility .8s }
+#loader.out { opacity:0; visibility:hidden }
+.ld-logo { font-family:var(--font-d); font-size:clamp(22px,5vw,36px); font-weight:700; letter-spacing:5px; text-transform:uppercase; color:var(--chrome-hi) }
+.ld-logo span { color:var(--cyber) }
+.ld-ring { width:110px; height:110px }
+.ld-ring svg { width:100%; height:100% }
+.ld-bar-wrap { width:220px; height:2px; background:rgba(255,255,255,.05); border-radius:2px; overflow:hidden }
+.ld-bar { height:100%; width:0; background:linear-gradient(90deg,var(--cyber2),var(--cyber)); box-shadow:0 0 10px var(--cyber); animation:ldFill 2.5s ease forwards }
+@keyframes ldFill { to { width:100% } }
+.ld-txt { font-family:var(--font-m); font-size:8px; letter-spacing:4px; color:var(--cyber2); text-transform:uppercase; animation:blink 1.2s step-end infinite }
+@keyframes blink { 50% { opacity:0 } }
+
+/* ═══════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════ */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:900;
+  height:var(--nav-h); padding:0 32px;
+  display:flex; align-items:center; justify-content:space-between;
+  background:rgba(7,8,12,.9);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(24px) saturate(160%);
+  box-shadow:0 4px 20px rgba(0,0,0,.5);
+}
+.nav-logo {
+  font-family:var(--font-d); font-size:13px; font-weight:700;
+  letter-spacing:3px; text-transform:uppercase;
+  background:linear-gradient(160deg,#f0f4f8,#c4cad2);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.nav-logo em { background:linear-gradient(160deg,#60f8ff,var(--cyber)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-style:normal }
+.nav-ul { display:flex; gap:22px; list-style:none }
+.nav-ul a { font-family:var(--font-m); font-size:9px; letter-spacing:2px; color:var(--chrome-low); text-transform:uppercase; transition:color .2s }
+.nav-ul a:hover { color:var(--cyber) }
+.nav-status { display:flex; align-items:center; gap:8px; font-family:var(--font-m); font-size:9px; letter-spacing:2px; color:rgba(0,242,255,.4); text-transform:uppercase }
+.nav-led { width:6px; height:6px; border-radius:50%; background:var(--cyber); box-shadow:0 0 8px var(--cyber); animation:ledPulse 2s ease-in-out infinite; flex-shrink:0 }
+@keyframes ledPulse { 0%,100%{opacity:1} 50%{opacity:.2} }
+/* Hamburger */
+.hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:none; padding:4px; flex-shrink:0 }
+.hamburger span { display:block; width:22px; height:1.5px; background:var(--chrome-mid); transition:transform .3s,opacity .3s }
+.hamburger.open span:nth-child(1) { transform:translateY(6.5px) rotate(45deg) }
+.hamburger.open span:nth-child(2) { opacity:0 }
+.hamburger.open span:nth-child(3) { transform:translateY(-6.5px) rotate(-45deg) }
+/* Mobile dropdown */
+.nav-drawer {
+  display:none; position:fixed;
+  top:var(--nav-h); left:0; right:0; z-index:899;
+  background:rgba(7,8,12,.97); backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:20px 24px;
+  flex-direction:column; gap:0;
+}
+.nav-drawer.open { display:flex }
+.nav-drawer a { font-family:var(--font-m); font-size:10px; letter-spacing:2px; color:var(--chrome-low); text-transform:uppercase; padding:14px 0; border-bottom:1px solid var(--border); display:block; transition:color .2s }
+.nav-drawer a:last-child { border-bottom:none }
+.nav-drawer a:hover { color:var(--cyber) }
+
+/* ═══════════════════════════════════════════
+   BREADCRUMB
+═══════════════════════════════════════════ */
+#breadcrumb {
+  position:fixed; top:var(--nav-h); left:0; right:0; z-index:800;
+  height:var(--bc-h); padding:0 32px;
+  display:flex; align-items:center;
+  background:rgba(7,8,12,.8); border-bottom:1px solid rgba(255,255,255,.04);
+  backdrop-filter:blur(16px);
+  overflow-x:auto; overflow-y:hidden;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+#breadcrumb::-webkit-scrollbar { display:none }
+.bc-item { display:flex; align-items:center; gap:0; color:var(--chrome-low); white-space:nowrap; font-family:var(--font-m); font-size:8px; letter-spacing:2px; text-transform:uppercase; transition:color .25s; cursor:none; flex-shrink:0 }
+.bc-item.active { color:var(--cyber) }
+.bc-sep { margin:0 8px; color:rgba(255,255,255,.12); font-size:9px; flex-shrink:0 }
+.bc-dot { width:4px; height:4px; border-radius:50%; background:var(--cyber); box-shadow:0 0 5px var(--cyber); margin-right:5px; display:none; flex-shrink:0 }
+.bc-item.active .bc-dot { display:block }
+
+/* ═══════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════ */
+#hero {
+  min-height:100vh;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center;
+  padding:calc(var(--nav-h) + var(--bc-h) + 40px) 20px 80px;
+  position:relative; overflow:hidden;
+}
+.hero-bg { position:absolute; inset:0; background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(0,80,160,.1),transparent 65%); pointer-events:none }
+.hero-grid-lines { position:absolute; inset:0; background-image:linear-gradient(rgba(0,242,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,242,255,.025) 1px,transparent 1px); background-size:48px 48px; mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,black 30%,transparent 100%); pointer-events:none }
+/* Rings — clamped so they don't overflow mobile */
+.hero-ring-a { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:min(520px,120vw); height:min(520px,120vw); border-radius:50%; border:1px solid rgba(0,242,255,.06); pointer-events:none }
+.hero-ring-b { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:min(340px,80vw); height:min(340px,80vw); border-radius:50%; border:1px solid rgba(0,242,255,.09); animation:ringRotate 14s linear infinite; pointer-events:none }
+@keyframes ringRotate { to { transform:translate(-50%,-50%) rotate(360deg) } }
+
+.hero-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(20,24,32,.88); border:1px solid rgba(0,242,255,.18); border-radius:50px; padding:6px 18px; margin-bottom:24px; font-family:var(--font-m); font-size:8px; letter-spacing:3px; color:var(--cyber2); text-transform:uppercase; box-shadow:0 4px 14px rgba(0,0,0,.5); opacity:0; animation:fadeUp .7s ease .4s forwards }
+
+.hero-title { font-family:var(--font-d); font-size:clamp(40px,12vw,116px); font-weight:700; line-height:.9; letter-spacing:-1px; text-transform:uppercase; margin-bottom:16px; opacity:0; animation:fadeUp .8s ease .65s forwards; word-break:keep-all; max-width:100% }
+.hero-title .t1 { background:linear-gradient(165deg,#f0f4f8 0%,#fff 25%,#c0c6ce 55%,#e4e8ee 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text }
+.hero-title .t2 { background:linear-gradient(165deg,#70faff 0%,#00F2FF 50%,#00c8d4 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; filter:drop-shadow(0 0 24px rgba(0,242,255,.45)) }
+
+.hero-creed { font-family:var(--font-m); font-size:clamp(8px,2vw,11px); letter-spacing:6px; text-transform:uppercase; color:var(--chrome-low); margin-bottom:18px; opacity:0; animation:fadeUp .7s ease .85s forwards }
+.hero-sub { max-width:460px; font-size:clamp(13px,3.5vw,15px); font-weight:300; color:var(--chrome-low); margin:0 auto 44px; opacity:0; animation:fadeUp .7s ease 1s forwards }
+.hero-btns { display:flex; gap:14px; flex-wrap:wrap; justify-content:center; opacity:0; animation:fadeUp .7s ease 1.15s forwards }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+
+/* ── Aluminum button ── */
+.btn-a { font-family:var(--font-d); font-size:9px; font-weight:700; letter-spacing:3px; text-transform:uppercase; padding:14px 30px; border-radius:6px; cursor:none; transition:all .25s; background:linear-gradient(165deg,#d8e0e8,#f0f4f8 20%,#ccd4dc 45%,#e8ecf2 65%,#c0c8d0 85%,#dce0e8 100%); color:#151822; border:none; box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -1px 0 rgba(0,0,0,.2),0 5px 16px rgba(0,0,0,.55),0 0 0 1px rgba(0,0,0,.3); position:relative; overflow:hidden }
+.btn-a::after { content:''; position:absolute; top:0; left:0; right:0; height:45%; background:linear-gradient(to bottom,rgba(255,255,255,.2),transparent); pointer-events:none }
+.btn-a:hover { transform:translateY(-2px); box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -1px 0 rgba(0,0,0,.2),0 8px 22px rgba(0,0,0,.65),0 0 0 1px rgba(0,0,0,.3),0 0 16px rgba(0,242,255,.1) }
+.btn-a:active { transform:translateY(1px) }
+/* ── Cyber button ── */
+.btn-c { font-family:var(--font-d); font-size:9px; font-weight:700; letter-spacing:3px; text-transform:uppercase; padding:14px 30px; border-radius:6px; cursor:none; transition:all .25s; background:transparent; color:var(--cyber); border:1px solid rgba(0,242,255,.32); box-shadow:0 4px 12px rgba(0,0,0,.4) }
+.btn-c:hover { background:rgba(0,242,255,.07); border-color:var(--cyber); transform:translateY(-2px); box-shadow:0 8px 20px rgba(0,0,0,.5),0 0 16px rgba(0,242,255,.18) }
+
+/* ═══════════════════════════════════════════
+   SECTION BASE
+═══════════════════════════════════════════ */
+section { padding:88px 32px }
+.inner { max-width:1200px; margin:0 auto }
+.eyebrow { font-family:var(--font-m); font-size:8px; letter-spacing:5px; color:var(--cyber2); text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:10px }
+.eyebrow::before { content:''; display:block; width:24px; height:1px; background:var(--cyber); box-shadow:0 0 6px var(--cyber); flex-shrink:0 }
+.sec-title { font-family:var(--font-d); font-size:clamp(24px,5vw,48px); font-weight:700; line-height:1.05; text-transform:uppercase; letter-spacing:1px; margin-bottom:40px }
+.sec-title .ct { background:linear-gradient(160deg,#f0f4f8,#c4cad2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text }
+.sec-title .cc { background:linear-gradient(160deg,#60f8ff,var(--cyber)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; filter:drop-shadow(0 0 16px rgba(0,242,255,.3)) }
+
+/* Reveal animations */
+.rv { opacity:0; transform:translateY(28px); transition:opacity .65s ease,transform .65s ease }
+.rv.vis { opacity:1; transform:none }
+.rvl { opacity:0; transform:translateX(-28px); transition:opacity .65s ease,transform .65s ease }
+.rvl.vis { opacity:1; transform:none }
+.rvr { opacity:0; transform:translateX(28px); transition:opacity .65s ease,transform .65s ease }
+.rvr.vis { opacity:1; transform:none }
+.div-line { width:100%; height:1px; background:linear-gradient(90deg,transparent,var(--border2),transparent) }
+
+/* ═══════════════════════════════════════════
+   BENTO GRID
+═══════════════════════════════════════════ */
+#bento { background:var(--bg1); position:relative; overflow:hidden }
+#bento::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,rgba(0,242,255,.45),transparent); box-shadow:0 0 12px rgba(0,242,255,.25) }
+
+.bento-grid { display:grid; grid-template-columns:repeat(4,1fr); grid-auto-rows:auto; gap:10px }
+.bento-cell { background:linear-gradient(145deg,var(--bg2),var(--bg3)); border:1px solid var(--border); border-radius:10px; padding:22px; position:relative; overflow:hidden; transition:border-color .3s,box-shadow .3s }
+.bento-cell:hover { border-color:rgba(0,242,255,.22); box-shadow:0 8px 28px rgba(0,0,0,.5),0 0 20px rgba(0,242,255,.04) }
+.bento-cell::after { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent) }
+.bc2 { grid-column:span 2 }
+.bc3 { grid-column:span 3 }
+.bento-lbl { font-family:var(--font-m); font-size:7px; letter-spacing:3px; text-transform:uppercase; color:var(--chrome-low); margin-bottom:8px; opacity:.65 }
+.bento-val { font-family:var(--font-d); font-size:clamp(20px,4vw,38px); font-weight:700; line-height:1; background:linear-gradient(160deg,#f0f4f8,#c4cad2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text }
+.bento-sub { font-family:var(--font-m); font-size:7px; letter-spacing:2px; text-transform:uppercase; color:var(--chrome-low); margin-top:4px; opacity:.45 }
+.bv-cyber .bento-val { background:linear-gradient(160deg,#60f8ff,var(--cyber)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; filter:drop-shadow(0 0 14px rgba(0,242,255,.35)) }
+.bv-amber .bento-val { background:linear-gradient(160deg,#ffd060,var(--amber)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text }
+.bento-creed-txt { font-family:var(--font-d); font-size:clamp(14px,2.5vw,22px); font-weight:700; text-transform:uppercase; letter-spacing:2px; line-height:1.35; color:var(--chrome-hi) }
+.bento-creed-txt em { color:var(--cyber); font-style:normal }
+.bento-bars { display:flex; align-items:flex-end; gap:5px; height:54px; margin-top:12px }
+.bento-bar { flex:1; border-radius:3px 3px 0 0; transition:opacity .3s; min-width:0 }
+.bento-bar:hover { opacity:1!important }
+.bento-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px }
+.bento-tag { font-family:var(--font-m); font-size:7px; letter-spacing:2px; text-transform:uppercase; padding:4px 10px; border:1px solid var(--border); color:var(--chrome-low); border-radius:4px }
+
+/* ═══════════════════════════════════════════
+   ORIGIN — leather card
+═══════════════════════════════════════════ */
+#origin { background:var(--bg2) }
+.origin-2col { display:grid; grid-template-columns:1fr 1fr; gap:56px; align-items:start }
+.origin-quote { font-family:var(--font-d); font-size:clamp(15px,2.2vw,20px); font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--chrome-hi); line-height:1.55; border-left:2px solid var(--cyber); padding-left:22px; margin-bottom:26px; box-shadow:-3px 0 14px rgba(0,242,255,.1) }
+.origin-quote em { color:var(--cyber); font-style:normal }
+.origin-body { font-size:15px; color:var(--chrome-low); line-height:1.9; font-weight:300; margin-bottom:14px }
+.leather-card { position:relative; background:linear-gradient(145deg,#1e160a,#161008); border-radius:10px; padding:30px; box-shadow:0 10px 32px rgba(0,0,0,.7),inset 0 1px 0 rgba(180,140,60,.1) }
+.leather-card::before { content:''; position:absolute; inset:8px; border-radius:6px; border:1.5px dashed rgba(180,140,60,.28); pointer-events:none }
+.lc-topline { position:absolute; top:0; left:16px; right:16px; height:2px; background:linear-gradient(90deg,transparent,rgba(0,242,255,.5),transparent) }
+.founder-name { font-family:var(--font-d); font-size:16px; font-weight:700; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(160deg,#60f8ff,var(--cyber)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:3px }
+.founder-role { font-family:var(--font-m); font-size:8px; letter-spacing:3px; color:rgba(180,140,60,.6); text-transform:uppercase; margin-bottom:16px }
+.founder-bio { font-size:13.5px; color:rgba(180,158,115,.72); line-height:1.85; font-weight:300 }
+.data-strip { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:rgba(180,140,60,.1); margin-top:20px; border-radius:4px; overflow:hidden }
+.dc { background:rgba(0,0,0,.4); padding:11px 13px }
+.dc .dl { font-family:var(--font-m); font-size:7px; letter-spacing:2px; color:rgba(180,140,60,.4); text-transform:uppercase; margin-bottom:2px }
+.dc .dv { font-family:var(--font-d); font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase; background:linear-gradient(160deg,#c8d0d8,#e8edf2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text }
+
+/* ═══════════════════════════════════════════
+   CREED — backlit panel + pulse divider
+═══════════════════════════════════════════ */
+#creed { background:var(--bg0) }
+.creed-statement { font-family:var(--font-d); font-size:clamp(28px,7vw,74px); font-weight:700; text-transform:uppercase; line-height:1; letter-spacing:1px; margin-bottom:52px; text-align:center }
+
+.panel-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5px; background:rgba(0,0,0,.7); border:1px solid rgba(255,255,255,.05); border-radius:12px; overflow:hidden; box-shadow:0 14px 44px rgba(0,0,0,.7) }
+.panel-cell { background:linear-gradient(165deg,#121520,#0e1018); padding:24px 20px; position:relative; overflow:hidden; transition:background .3s; cursor:none }
+.panel-cell::before { content:''; position:absolute; inset:0; background:linear-gradient(0deg,rgba(255,255,255,.01) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.01) 1px,transparent 1px); background-size:18px 18px; pointer-events:none }
+.panel-cell::after { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; background:var(--cyber); box-shadow:0 0 12px var(--cyber); transform:scaleX(0); transform-origin:left; transition:transform .4s ease }
+.panel-cell:hover { background:linear-gradient(165deg,#161a24,#111420) }
+.panel-cell:hover::after { transform:scaleX(1) }
+.panel-cell:hover .panel-led { opacity:1 }
+.panel-num { font-family:var(--font-m); font-size:8px; letter-spacing:2px; color:rgba(0,242,255,.35); margin-bottom:10px }
+.panel-name { font-family:var(--font-d); font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--chrome-hi); margin-bottom:8px; display:flex; align-items:center; gap:6px }
+.panel-led { width:5px; height:5px; border-radius:50%; background:var(--cyber); box-shadow:0 0 8px var(--cyber); opacity:0; transition:opacity .3s; flex-shrink:0 }
+.panel-desc { font-size:13px; color:rgba(150,162,178,.6); line-height:1.7; font-weight:300 }
+
+/* Cockpit toggles */
+.toggles-row { display:flex; flex-wrap:wrap; gap:14px; justify-content:center; margin-top:40px }
+.tog-unit { display:flex; flex-direction:column; align-items:center; gap:8px }
+.tog-lbl { font-family:var(--font-m); font-size:7px; letter-spacing:2px; color:var(--chrome-low); text-transform:uppercase }
+.tog-sw { position:relative; width:56px; height:26px; background:linear-gradient(180deg,#0c0e12,#14181e); border-radius:26px; cursor:none; box-shadow:inset 0 2px 5px rgba(0,0,0,.7),0 0 0 1px rgba(0,0,0,.5); transition:all .2s }
+.tog-sw::before { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:44px; height:4px; background:linear-gradient(180deg,#08090c,#0f1214); border-radius:4px; box-shadow:inset 0 1px 3px rgba(0,0,0,.8) }
+.tog-knob { position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:linear-gradient(140deg,#c8d0d8,#f0f4f8 30%,#b8c0c8 60%,#e0e5eb 85%,#a8b0b8 100%); box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 2px 6px rgba(0,0,0,.6); transition:transform .25s cubic-bezier(.34,1.56,.64,1); z-index:1 }
+.tog-knob::after { content:''; position:absolute; inset:4px; border-radius:50%; background:linear-gradient(140deg,#b0b8c0,#d0d8e0) }
+.tog-led { position:absolute; top:50%; right:7px; transform:translateY(-50%); width:4px; height:4px; border-radius:50%; background:rgba(0,242,255,.1); transition:all .3s }
+.tog-sw.on .tog-knob { transform:translateX(30px) }
+.tog-sw.on .tog-led { background:var(--cyber); box-shadow:0 0 7px var(--cyber),0 0 14px rgba(0,242,255,.4) }
+
+/* Pulse divider */
+.pulse-divider { display:flex; align-items:center; gap:20px; justify-content:center; margin-top:44px }
+.pulse-line { flex:1; max-width:160px; height:1px; background:linear-gradient(90deg,transparent,rgba(0,242,255,.4),transparent); box-shadow:0 0 7px rgba(0,242,255,.2); animation:pulseBar 2.5s ease-in-out infinite }
+@keyframes pulseBar { 0%,100%{opacity:.3} 50%{opacity:1} }
+.pulse-creed { font-family:var(--font-d); font-size:11px; letter-spacing:6px; text-transform:uppercase; color:var(--cyber); text-shadow:0 0 14px rgba(0,242,255,.4) }
+
+/* ═══════════════════════════════════════════
+   TABS — Drive Profiles
+═══════════════════════════════════════════ */
+#profiles { background:var(--bg1) }
+.tab-nav { display:flex; gap:2px; background:rgba(0,0,0,.4); border:1px solid var(--border); border-radius:10px 10px 0 0; overflow-x:auto; border-bottom:none; scrollbar-width:none }
+.tab-nav::-webkit-scrollbar { display:none }
+.tab-btn { font-family:var(--font-m); font-size:9px; letter-spacing:2px; text-transform:uppercase; padding:13px 22px; background:transparent; border:none; color:var(--chrome-low); cursor:none; transition:all .25s; position:relative; overflow:hidden; white-space:nowrap; flex-shrink:0; display:flex; align-items:center; gap:7px }
+.tab-btn::after { content:''; position:absolute; bottom:0; left:50%; right:50%; height:2px; background:var(--cyber); box-shadow:0 0 8px var(--cyber); transition:left .3s,right .3s }
+.tab-btn.active { background:rgba(0,242,255,.05); color:var(--cyber) }
+.tab-btn.active::after { left:0; right:0 }
+.tab-btn svg { width:14px; height:14px; stroke:currentColor; stroke-width:2; fill:none; flex-shrink:0 }
+.tab-body { background:linear-gradient(165deg,var(--bg2),var(--bg3)); border:1px solid var(--border); border-top:none; border-radius:0 0 10px 10px; padding:28px; box-shadow:0 8px 22px rgba(0,0,0,.4) }
+.tab-pane { display:none; animation:tabFade .3s ease }
+.tab-pane.active { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px }
+@keyframes tabFade { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+.profile-card { background:rgba(0,0,0,.3); border:1px solid var(--border); border-radius:8px; padding:18px; position:relative; overflow:hidden; transition:border-color .3s }
+.profile-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--cc,var(--cyber)); opacity:.7 }
+.profile-card:hover { border-color:rgba(0,242,255,.2) }
+.profile-icon { width:28px; height:28px; color:var(--cc,var(--cyber)); margin-bottom:10px; opacity:.85 }
+.profile-icon svg { width:100%; height:100%; stroke:currentColor; stroke-width:1.5; fill:none }
+.profile-lbl { font-family:var(--font-m); font-size:7px; letter-spacing:3px; color:var(--chrome-low); text-transform:uppercase; margin-bottom:4px }
+.profile-name { font-family:var(--font-d); font-size:13px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--chrome-hi); margin-bottom:8px }
+.profile-desc { font-size:13px; color:var(--chrome-low); line-height:1.7; font-weight:300 }
+
+/* ═══════════════════════════════════════════
+   RADIO — Car filter
+═══════════════════════════════════════════ */
+.radio-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:24px }
+.radio-opt { position:relative; cursor:none }
+.radio-opt input { position:absolute; opacity:0; width:0; height:0 }
+.radio-lbl { display:flex; align-items:center; gap:9px; padding:10px 18px; background:rgba(0,0,0,.35); border:1px solid var(--border); border-radius:6px; font-family:var(--font-m); font-size:8px; letter-spacing:2px; text-transform:uppercase; color:var(--chrome-low); transition:all .25s; cursor:none }
+.radio-knob { width:13px; height:13px; border-radius:50%; border:1.5px solid var(--chrome-low); background:linear-gradient(145deg,#0c0e12,#181c22); box-shadow:inset 0 1px 3px rgba(0,0,0,.6); transition:all .25s; flex-shrink:0; position:relative }
+.radio-knob::after { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:5px; height:5px; border-radius:50%; background:var(--cyber); opacity:0; transition:opacity .2s }
+.radio-opt input:checked + .radio-lbl { border-color:rgba(0,242,255,.4); color:var(--cyber); background:rgba(0,242,255,.06) }
+.radio-opt input:checked + .radio-lbl .radio-knob { border-color:var(--cyber); box-shadow:inset 0 1px 3px rgba(0,0,0,.6),0 0 8px rgba(0,242,255,.25) }
+.radio-opt input:checked + .radio-lbl .radio-knob::after { opacity:1 }
+
+/* ═══════════════════════════════════════════
+   GARAGE
+═══════════════════════════════════════════ */
+#garage { background:var(--bg0); position:relative; overflow:hidden }
+#garage::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,rgba(0,242,255,.4),transparent); box-shadow:0 0 12px rgba(0,242,255,.22) }
+
+.fleet-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px }
+
+/* Skeleton shimmer */
+@keyframes shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+.skeleton { background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.04) 75%); background-size:400px 100%; animation:shimmer 1.6s infinite; border-radius:5px }
+.skel-card { background:linear-gradient(155deg,#13161d,#0f1216); border:1px solid var(--border); border-radius:10px; padding:18px }
+.sk-rail { height:2px; width:100%; margin-bottom:16px }
+.sk-line { height:9px; margin-bottom:9px }
+.sk-line.w60 { width:60% } .sk-line.w40 { width:40% } .sk-line.w80 { width:80% }
+.sk-rect { height:110px; margin:12px 0 }
+.sk-row { display:flex; gap:7px; margin-top:12px }
+.sk-row .skeleton { flex:1; height:44px }
+
+/* Car card */
+.car-card { position:relative; background:linear-gradient(155deg,#14171e,#0f1218); border:1px solid var(--border); border-radius:10px; overflow:hidden; transition:transform .4s,box-shadow .4s,border-color .35s; cursor:none }
+.car-card:hover { transform:translateY(-6px); border-color:rgba(0,242,255,.2); box-shadow:0 20px 50px rgba(0,0,0,.7),0 0 30px rgba(0,242,255,.04) }
+.card-rail { height:2px; background:linear-gradient(90deg,rgba(80,90,100,.1),rgba(255,255,255,.28) 25%,rgba(200,210,220,.52) 50%,rgba(255,255,255,.25) 75%,rgba(80,90,100,.1)) }
+.card-top { padding:16px 18px 0 }
+.card-cat { font-family:var(--font-m); font-size:7px; letter-spacing:3px; color:var(--cyber2); text-transform:uppercase; margin-bottom:3px; display:flex; align-items:center; gap:7px }
+.card-cat::before { content:''; display:block; width:10px; height:1px; background:var(--cyber); flex-shrink:0 }
+.card-sub { font-family:var(--font-d); font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--chrome-low); margin-bottom:2px }
+.card-main { font-family:var(--font-d); font-size:clamp(13px,2vw,17px); font-weight:700; text-transform:uppercase; letter-spacing:.5px; background:linear-gradient(160deg,#f0f4f8,#fff 30%,#c0c6ce 60%,#e4e8ee 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text }
+.car-visual { position:relative; height:140px; display:flex; align-items:center; justify-content:center; overflow:hidden; margin:6px 0 }
+.car-visual::before { content:''; position:absolute; bottom:10px; left:50%; transform:translateX(-50%); width:68%; height:12px; background:radial-gradient(ellipse,rgba(0,242,255,.2),transparent 70%); filter:blur(4px) }
+.car-visual::after { content:''; position:absolute; inset:0; background:linear-gradient(0deg,rgba(0,242,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,242,255,.02) 1px,transparent 1px); background-size:18px 18px; pointer-events:none; opacity:.5 }
+.car-img { max-width:85%; max-height:124px; object-fit:contain; filter:drop-shadow(0 2px 16px rgba(0,242,255,.2)); transition:transform .5s,filter .4s; position:relative; z-index:1 }
+.car-card:hover .car-img { transform:scale(1.05) translateY(-3px) rotate(-1deg); filter:drop-shadow(0 3px 24px rgba(0,242,255,.38)) }
+.car-ph { width:85%; height:105px; border:1px dashed rgba(0,242,255,.11); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; position:relative; z-index:1; border-radius:4px }
+.car-ph .ph-icon { color:rgba(0,242,255,.3); width:32px; height:32px }
+.car-ph .ph-icon svg { width:100%; height:100%; stroke:currentColor; stroke-width:1.5; fill:none }
+.car-ph .ph-lbl { font-family:var(--font-m); font-size:7px; letter-spacing:2px; color:rgba(0,242,255,.28); text-transform:uppercase }
+.card-gauges { display:flex; justify-content:center; gap:8px; padding:4px 12px 12px }
+.gauge-wrap { display:flex; flex-direction:column; align-items:center; gap:3px }
+.gauge-lbl { font-family:var(--font-m); font-size:6.5px; letter-spacing:2px; color:var(--chrome-low); text-transform:uppercase; opacity:.6 }
+.gauge-svg { width:90px; height:90px }
+.card-readout { margin:0 12px 12px; background:linear-gradient(180deg,#050608,#090b10); border:1px solid rgba(0,0,0,.8); border-radius:4px; padding:8px 12px; display:flex; justify-content:space-between; align-items:center; box-shadow:inset 0 2px 5px rgba(0,0,0,.6) }
+.ro-item { text-align:center }
+.ro-l { font-family:var(--font-m); font-size:6.5px; letter-spacing:2px; color:rgba(120,130,142,.45); text-transform:uppercase; margin-bottom:2px }
+.ro-v { font-family:var(--font-m); font-size:10px; color:var(--cyber); text-shadow:0 0 7px rgba(0,242,255,.45) }
+.ro-div { width:1px; height:22px; background:rgba(255,255,255,.05) }
+.card-cta { margin:0 12px 14px; display:flex; align-items:center; justify-content:center; gap:7px; padding:9px; background:rgba(0,242,255,.04); border:1px solid rgba(0,242,255,.14); border-radius:5px; font-family:var(--font-m); font-size:7.5px; letter-spacing:2px; text-transform:uppercase; color:var(--cyber2); cursor:none; transition:all .25s }
+.card-cta:hover { background:rgba(0,242,255,.09); border-color:rgba(0,242,255,.32) }
+.card-cta svg { width:11px; height:11px; stroke:currentColor; stroke-width:2; fill:none }
+
+/* ═══════════════════════════════════════════
+   CAROUSEL
+═══════════════════════════════════════════ */
+#stories { background:var(--bg1) }
+.carousel-wrap { position:relative; overflow:hidden; border-radius:10px; border:1px solid var(--border); box-shadow:0 8px 28px rgba(0,0,0,.5) }
+.carousel-track { display:flex; transition:transform .5s cubic-bezier(.25,.46,.45,.94) }
+.carousel-slide { min-width:100%; padding:40px 44px; background:linear-gradient(145deg,var(--bg2),var(--bg3)); display:flex; gap:36px; align-items:center; flex-shrink:0 }
+.slide-num { font-family:var(--font-d); font-size:clamp(36px,8vw,72px); font-weight:700; color:rgba(0,242,255,.06); flex-shrink:0; line-height:1 }
+.slide-quote { font-family:var(--font-d); font-size:clamp(14px,2vw,19px); font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--chrome-hi); line-height:1.5 }
+.slide-quote em { color:var(--cyber); font-style:normal }
+.slide-author { margin-top:18px; font-family:var(--font-m); font-size:8px; letter-spacing:2px; color:var(--chrome-low); text-transform:uppercase }
+.slide-tag { display:inline-block; margin-top:8px; font-family:var(--font-m); font-size:7px; letter-spacing:3px; text-transform:uppercase; padding:4px 11px; border:1px solid rgba(0,242,255,.22); color:var(--cyber2); border-radius:50px }
+.carousel-controls { display:flex; align-items:center; gap:14px; margin-top:18px; justify-content:center }
+.car-btn { width:38px; height:38px; border-radius:50%; background:linear-gradient(145deg,#1a1e28,#141820); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:none; transition:all .25s; box-shadow:0 4px 10px rgba(0,0,0,.5) }
+.car-btn:hover { border-color:rgba(0,242,255,.3); box-shadow:0 4px 12px rgba(0,0,0,.5),0 0 10px rgba(0,242,255,.12) }
+.car-btn svg { width:13px; height:13px; stroke:var(--chrome-low); stroke-width:2; fill:none }
+.car-btn:hover svg { stroke:var(--cyber) }
+.carousel-dots { display:flex; gap:7px; align-items:center }
+.c-dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.18); cursor:none; transition:all .3s }
+.c-dot.active { width:18px; border-radius:3px; background:var(--cyber); box-shadow:0 0 7px var(--cyber) }
+
+/* ═══════════════════════════════════════════
+   COMMUNITY
+═══════════════════════════════════════════ */
+#community { background:var(--bg2) }
+.community-2col { display:grid; grid-template-columns:1fr 1fr; gap:56px; align-items:start }
+.synchers-pill { display:inline-flex; align-items:center; gap:9px; background:rgba(20,24,32,.9); border:1px solid rgba(0,242,255,.16); border-radius:50px; padding:7px 18px; margin-bottom:20px; font-family:var(--font-m); font-size:8px; letter-spacing:3px; color:var(--cyber2); text-transform:uppercase }
+.comm-body { font-size:14.5px; color:var(--chrome-low); line-height:1.9; font-weight:300; margin-bottom:14px }
+.partner-plate { position:relative; background:linear-gradient(155deg,#141820,#0f1318); border-radius:10px; border:1px solid var(--border); padding:30px; box-shadow:0 10px 30px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.04); overflow:hidden }
+.partner-plate .pp-rail { position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,rgba(80,90,100,.1),rgba(255,255,255,.28) 30%,rgba(200,210,220,.5) 50%,rgba(255,255,255,.22) 70%,rgba(80,90,100,.1)) }
+.partner-plate .pp-side { position:absolute; left:0; top:12%; bottom:12%; width:2px; background:linear-gradient(to bottom,transparent,var(--cyber),transparent); box-shadow:0 0 10px rgba(0,242,255,.3) }
+.pp-title { font-family:var(--font-d); font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--chrome-hi); margin-bottom:12px }
+.pp-body { font-size:13.5px; color:var(--chrome-low); line-height:1.85; font-weight:300; margin-bottom:20px }
+.pp-tags { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:22px }
+.pp-tag { font-family:var(--font-m); font-size:7px; letter-spacing:2px; text-transform:uppercase; padding:5px 11px; background:rgba(0,0,0,.35); border:1px solid var(--border); color:var(--chrome-low); border-radius:4px; cursor:none; transition:all .2s }
+.pp-tag:hover { border-color:rgba(0,242,255,.28); color:var(--cyber) }
+
+/* ═══════════════════════════════════════════
+   ACCORDION
+═══════════════════════════════════════════ */
+#protocols { background:var(--bg0) }
+.acc-cols { display:grid; grid-template-columns:1fr 1fr; gap:36px }
+.accordion { display:flex; flex-direction:column; gap:2px; border-radius:10px; overflow:hidden; border:1px solid var(--border); box-shadow:0 6px 20px rgba(0,0,0,.4) }
+.acc-item { background:linear-gradient(165deg,var(--bg2),var(--bg3)); border-bottom:1px solid rgba(255,255,255,.04) }
+.acc-item:last-child { border-bottom:none }
+.acc-header { display:flex; align-items:center; gap:12px; padding:18px 22px; cursor:none; transition:background .25s }
+.acc-header:hover { background:rgba(255,255,255,.02) }
+.acc-icon { width:26px; height:26px; border-radius:5px; background:rgba(0,0,0,.4); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--chrome-low); transition:all .3s }
+.acc-icon svg { width:13px; height:13px; stroke:currentColor; stroke-width:1.8; fill:none }
+.acc-title { font-family:var(--font-d); font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--chrome-mid); flex:1; transition:color .3s }
+.acc-chevron { width:14px; height:14px; color:var(--chrome-low); transition:transform .3s; flex-shrink:0 }
+.acc-chevron svg { width:100%; height:100%; stroke:currentColor; stroke-width:2; fill:none }
+.acc-item.open .acc-chevron { transform:rotate(180deg) }
+.acc-item.open .acc-title { color:var(--cyber) }
+.acc-item.open .acc-icon { border-color:rgba(0,242,255,.28); color:var(--cyber2); background:rgba(0,242,255,.05) }
+.acc-body { max-height:0; overflow:hidden; transition:max-height .4s ease }
+.acc-body-inner { padding:0 22px 20px 60px; font-size:13.5px; color:var(--chrome-low); line-height:1.85; font-weight:300 }
+.acc-item.open .acc-body { max-height:200px }
+
+/* ═══════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════ */
+.modal-overlay { position:fixed; inset:0; z-index:5000; background:rgba(0,0,0,.78); backdrop-filter:blur(14px); display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition:opacity .3s,visibility .3s; padding:16px }
+.modal-overlay.open { opacity:1; visibility:visible }
+.modal { background:linear-gradient(145deg,var(--bg2),var(--bg3)); border:1px solid rgba(255,255,255,.1); border-radius:14px; width:100%; max-width:680px; max-height:92vh; overflow-y:auto; box-shadow:0 22px 56px rgba(0,0,0,.8); transform:translateY(20px) scale(.97); transition:transform .35s ease; position:relative }
+.modal-overlay.open .modal { transform:none }
+.modal-rail { height:2px; background:linear-gradient(90deg,transparent,var(--cyber),transparent); border-radius:14px 14px 0 0 }
+.modal-header { padding:22px 24px 0; display:flex; align-items:flex-start; justify-content:space-between; gap:14px }
+.modal-cat { font-family:var(--font-m); font-size:8px; letter-spacing:3px; color:var(--cyber2); text-transform:uppercase; margin-bottom:4px }
+.modal-name { font-family:var(--font-d); font-size:clamp(17px,3vw,24px); font-weight:700; text-transform:uppercase; background:linear-gradient(160deg,#f0f4f8,#c4cad2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text }
+.modal-close { width:32px; height:32px; border-radius:7px; background:rgba(0,0,0,.4); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:none; transition:all .25s; flex-shrink:0 }
+.modal-close:hover { border-color:rgba(255,59,48,.4); background:rgba(255,59,48,.08) }
+.modal-close svg { width:13px; height:13px; stroke:var(--chrome-low); stroke-width:2; fill:none }
+.modal-close:hover svg { stroke:var(--red) }
+.modal-body { padding:20px 24px 24px }
+.modal-car-visual { height:150px; display:flex; align-items:center; justify-content:center; background:radial-gradient(ellipse 70% 60% at 50% 60%,rgba(0,242,255,.07),transparent); border-radius:7px; margin-bottom:20px; position:relative }
+.modal-car-visual::after { content:''; position:absolute; bottom:10px; left:50%; transform:translateX(-50%); width:58%; height:10px; background:radial-gradient(ellipse,rgba(0,242,255,.22),transparent 70%); filter:blur(4px) }
+.modal-car-img { max-height:130px; max-width:84%; object-fit:contain; filter:drop-shadow(0 2px 18px rgba(0,242,255,.28)); position:relative; z-index:1 }
+.modal-gauges { display:flex; justify-content:center; gap:14px; margin-bottom:20px; flex-wrap:wrap }
+.modal-specs-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:7px; margin-bottom:20px }
+.mspec { background:rgba(0,0,0,.3); border:1px solid var(--border); border-radius:5px; padding:11px 13px }
+.mspec .ml { font-family:var(--font-m); font-size:7px; letter-spacing:2px; color:rgba(120,130,142,.45); text-transform:uppercase; margin-bottom:2px }
+.mspec .mv { font-family:var(--font-m); font-size:12px; color:var(--cyber); text-shadow:0 0 8px rgba(0,242,255,.35) }
+.modal-desc { font-size:13.5px; color:var(--chrome-low); line-height:1.85; font-weight:300 }
+.modal::-webkit-scrollbar { width:3px }
+.modal::-webkit-scrollbar-thumb { background:rgba(0,242,255,.2); border-radius:3px }
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+#toast-ct { position:fixed; top:calc(var(--nav-h) + var(--bc-h) + 10px); right:16px; z-index:8000; display:flex; flex-direction:column; gap:8px; pointer-events:none }
+.toast { background:rgba(18,22,32,.96); border:1px solid rgba(255,255,255,.09); border-radius:9px; padding:12px 16px; min-width:240px; max-width:300px; display:flex; align-items:flex-start; gap:10px; box-shadow:0 8px 24px rgba(0,0,0,.6); pointer-events:all; transform:translateX(110%); transition:transform .4s cubic-bezier(.34,1.3,.64,1),opacity .3s; opacity:0; backdrop-filter:blur(16px); position:relative }
+.toast.show { transform:translateX(0); opacity:1 }
+.toast.hide { transform:translateX(110%); opacity:0 }
+.toast-ico { width:26px; height:26px; border-radius:5px; display:flex; align-items:center; justify-content:center; flex-shrink:0 }
+.t-cyber { background:rgba(0,242,255,.1); border:1px solid rgba(0,242,255,.22) }
+.t-amber { background:rgba(255,159,10,.1); border:1px solid rgba(255,159,10,.22) }
+.t-green { background:rgba(52,199,89,.1); border:1px solid rgba(52,199,89,.22) }
+.toast-ico svg { width:14px; height:14px; stroke:currentColor; stroke-width:2; fill:none }
+.t-cyber svg { color:var(--cyber) }
+.t-amber svg { color:var(--amber) }
+.t-green svg { color:var(--green) }
+.toast-title { font-family:var(--font-d); font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--chrome-hi); margin-bottom:2px }
+.toast-msg { font-family:var(--font-m); font-size:8px; letter-spacing:1px; color:var(--chrome-low) }
+.toast-close { margin-left:auto; background:none; border:none; color:var(--chrome-low); font-size:12px; cursor:pointer; opacity:.45; padding:0 0 0 4px; align-self:center; flex-shrink:0; transition:opacity .2s; font-family:var(--font-m) }
+.toast-close:hover { opacity:1 }
+.toast-bar { position:absolute; bottom:0; left:0; height:2px; background:var(--cyber); border-radius:0 0 9px 9px; transition:width linear }
+
+/* ═══════════════════════════════════════════
+   SNACKBAR
+═══════════════════════════════════════════ */
+#snackbar { position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(120%); z-index:8000; background:rgba(18,22,32,.97); border:1px solid rgba(255,255,255,.1); border-radius:50px; padding:13px 24px; display:flex; align-items:center; gap:12px; min-width:280px; max-width:480px; box-shadow:0 8px 24px rgba(0,0,0,.6); backdrop-filter:blur(20px); transition:transform .45s cubic-bezier(.34,1.3,.64,1),opacity .35s; opacity:0 }
+#snackbar.show { transform:translateX(-50%) translateY(0); opacity:1 }
+.snk-ico { width:16px; height:16px; color:var(--cyber); flex-shrink:0 }
+.snk-ico svg { width:100%; height:100%; stroke:currentColor; stroke-width:2; fill:none }
+.snk-txt { font-family:var(--font-m); font-size:9px; letter-spacing:2px; color:var(--chrome-mid); text-transform:uppercase; flex:1 }
+.snk-action { font-family:var(--font-d); font-size:8px; letter-spacing:2px; text-transform:uppercase; color:var(--cyber); cursor:pointer; padding:5px 13px; border:1px solid rgba(0,242,255,.28); border-radius:50px; transition:all .2s; background:rgba(0,242,255,.04); white-space:nowrap; flex-shrink:0 }
+.snk-action:hover { background:rgba(0,242,255,.1); border-color:var(--cyber) }
+
+/* ═══════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════ */
+footer { background:linear-gradient(180deg,#0c0e14,#08090d); border-top:1px solid var(--border); padding:44px 32px 28px }
+.footer-in { max-width:1200px; margin:0 auto }
+.footer-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:14px }
+.footer-logo { font-family:var(--font-d); font-size:15px; font-weight:700; letter-spacing:3px; text-transform:uppercase; background:linear-gradient(160deg,#f0f4f8,#c4cad2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text }
+.footer-logo em { background:linear-gradient(160deg,#60f8ff,var(--cyber)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-style:normal }
+.footer-creed { font-family:var(--font-m); font-size:8px; letter-spacing:4px; color:rgba(0,242,255,.28); text-transform:uppercase }
+.footer-bot { border-top:1px solid var(--border); padding-top:20px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px }
+.footer-copy { font-family:var(--font-m); font-size:8px; letter-spacing:1.5px; color:rgba(160,170,185,.22); text-transform:uppercase }
+.footer-fan { font-family:var(--font-m); font-size:8px; letter-spacing:2px; color:rgba(0,242,255,.22); text-transform:uppercase }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media (max-width:1100px) {
+  .fleet-grid { grid-template-columns:repeat(2,1fr) }
+  .panel-grid { grid-template-columns:repeat(2,1fr) }
+  .bento-grid { grid-template-columns:repeat(2,1fr) }
+  .bc2,.bc3 { grid-column:span 1 }
+}
+@media (max-width:768px) {
+  section { padding:72px 16px }
+  nav { padding:0 16px }
+  #breadcrumb { padding:0 16px }
+  #toast-ct { right:8px; left:8px; align-items:stretch }
+  .toast { min-width:0; width:100%; max-width:none }
+  #snackbar { left:12px; right:12px; min-width:0; max-width:none; transform:translateX(0) translateY(120%) }
+  #snackbar.show { transform:translateX(0) translateY(0) }
+  .fleet-grid { grid-template-columns:1fr }
+  .panel-grid { grid-template-columns:1fr }
+  .bento-grid { grid-template-columns:1fr }
+  .bc2,.bc3 { grid-column:span 1 }
+  .origin-2col,.community-2col,.acc-cols { grid-template-columns:1fr; gap:32px }
+  .nav-ul,.nav-status { display:none }
+  .hamburger { display:flex }
+  body { cursor:auto }
+  .cur,.cur-ring { display:none }
+  .carousel-slide { flex-direction:column; padding:28px 20px; gap:16px }
+  .slide-num { font-size:clamp(32px,10vw,56px) }
+  .modal-gauges { flex-wrap:wrap }
+  .modal-specs-grid { grid-template-columns:1fr }
+  .tab-pane.active { grid-template-columns:1fr }
+  .hero-title { font-size:clamp(36px,13vw,80px) }
+  .data-strip { grid-template-columns:1fr }
+  .footer-bot { flex-direction:column; text-align:center }
+  .footer-top { flex-direction:column; align-items:flex-start }
+}
+@media (max-width:480px) {
+  .hero-btns { flex-direction:column; align-items:stretch }
+  .btn-a,.btn-c { text-align:center; padding:14px 20px }
+  .tab-btn { padding:11px 14px; font-size:8px; gap:5px }
+  .radio-row { gap:6px }
+  .radio-lbl { padding:9px 14px }
+  .toggles-row { gap:10px }
+  .carousel-slide { padding:22px 16px }
+  .card-gauges { gap:6px }
+  .gauge-svg { width:82px; height:82px }
+}
+</style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div class="cur" id="cur"></div>
+<div class="cur-ring" id="curRing"></div>
+
+<!-- Toast container -->
+<div id="toast-ct"></div>
+
+<!-- Snackbar -->
+<div id="snackbar">
+  <span class="snk-ico"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+  <span class="snk-txt" id="snkTxt">Engine telemetry synced</span>
+  <span class="snk-action" id="snkAction">Dismiss</span>
+</div>
+
+<!-- ═══ MODAL ═══ -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-rail"></div>
+    <div class="modal-header">
+      <div>
+        <div class="modal-cat" id="mCat"></div>
+        <div class="modal-name" id="mName"></div>
+      </div>
+      <button class="modal-close" id="mClose">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-car-visual"><img id="mImg" src="" alt="" class="modal-car-img" onerror="this.style.display='none'"></div>
+      <div class="modal-gauges" id="mGauges"></div>
+      <div class="modal-specs-grid" id="mSpecs"></div>
+      <div class="modal-desc" id="mDesc"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ LOADER ═══ -->
+<div id="loader">
+  <div class="ld-ring">
+    <svg viewBox="0 0 110 110" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="ldCr" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3a4050"/>
+          <stop offset="30%" stop-color="#d0d8e0"/>
+          <stop offset="60%" stop-color="#5a6270"/>
+          <stop offset="100%" stop-color="#b8c0c8"/>
+        </linearGradient>
+        <radialGradient id="ldFc" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#1c202a"/>
+          <stop offset="100%" stop-color="#0a0c12"/>
+        </radialGradient>
+        <filter id="ldGl"><feGaussianBlur stdDeviation="1.4" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
+      </defs>
+      <circle cx="55" cy="55" r="52" fill="url(#ldCr)"/>
+      <circle cx="55" cy="55" r="48" fill="url(#ldFc)"/>
+      <circle cx="55" cy="55" r="37" fill="none" stroke="#151820" stroke-width="7" stroke-dasharray="173.8 57.9" transform="rotate(-135 55 55)" stroke-linecap="round"/>
+      <circle cx="55" cy="55" r="37" fill="none" stroke="#00F2FF" stroke-width="3.5" stroke-dasharray="0 231.7" transform="rotate(-135 55 55)" stroke-linecap="round" filter="url(#ldGl)" id="ldArc"/>
+      <line x1="55" y1="55" x2="55" y2="24" stroke="#00F2FF" stroke-width="2" stroke-linecap="round" filter="url(#ldGl)" id="ldNeedle" transform="rotate(135 55 55)"/>
+      <circle cx="55" cy="55" r="5" fill="#1e222e" stroke="#00F2FF" stroke-width="1"/>
+      <circle cx="55" cy="55" r="2" fill="#00F2FF"/>
+      <ellipse cx="42" cy="40" rx="20" ry="13" fill="white" opacity=".018"/>
+    </svg>
+  </div>
+  <div class="ld-logo">Synchro<span>Drive</span></div>
+  <div class="ld-bar-wrap"><div class="ld-bar"></div></div>
+  <div class="ld-txt">Synchronization Protocol — Online</div>
+</div>
+
+<!-- ═══ NAV ═══ -->
+<nav id="nav">
+  <a href="#hero" class="nav-logo">Synchro<em>Drive</em></a>
+  <ul class="nav-ul">
+    <li><a href="#bento">Overview</a></li>
+    <li><a href="#origin">Origin</a></li>
+    <li><a href="#creed">Creed</a></li>
+    <li><a href="#garage">Garage</a></li>
+    <li><a href="#stories">Synchers</a></li>
+    <li><a href="#protocols">Protocols</a></li>
+  </ul>
+  <div class="nav-status">
+    <div class="nav-led"></div>
+    <span>System Online</span>
+  </div>
+  <button class="hamburger" id="ham"><span></span><span></span><span></span></button>
+</nav>
+
+<!-- Mobile drawer -->
+<div class="nav-drawer" id="navDrawer">
+  <a href="#bento" class="nav-d-link">Overview</a>
+  <a href="#origin" class="nav-d-link">Origin</a>
+  <a href="#creed" class="nav-d-link">Creed</a>
+  <a href="#garage" class="nav-d-link">Garage</a>
+  <a href="#stories" class="nav-d-link">Synchers</a>
+  <a href="#protocols" class="nav-d-link">Protocols</a>
+</div>
+
+<!-- ═══ BREADCRUMB ═══ -->
+<div id="breadcrumb">
+  <span class="bc-item active" data-section="hero"><span class="bc-dot"></span>Home</span>
+  <span class="bc-sep">/</span>
+  <span class="bc-item" data-section="bento"><span class="bc-dot"></span>Overview</span>
+  <span class="bc-sep">/</span>
+  <span class="bc-item" data-section="origin"><span class="bc-dot"></span>Origin</span>
+  <span class="bc-sep">/</span>
+  <span class="bc-item" data-section="creed"><span class="bc-dot"></span>Creed</span>
+  <span class="bc-sep">/</span>
+  <span class="bc-item" data-section="garage"><span class="bc-dot"></span>Garage</span>
+  <span class="bc-sep">/</span>
+  <span class="bc-item" data-section="stories"><span class="bc-dot"></span>Synchers</span>
+  <span class="bc-sep">/</span>
+  <span class="bc-item" data-section="protocols"><span class="bc-dot"></span>Protocols</span>
+</div>
+
+<!-- ═══ HERO ═══ -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid-lines"></div>
+  <div class="hero-ring-a"></div>
+  <div class="hero-ring-b"></div>
+
+  <div class="hero-badge">
+    <div class="nav-led" style="width:5px;height:5px"></div>
+    All Systems Synchronized — Est. 2026
+  </div>
+  <h1 class="hero-title"><span class="t1">Synchro</span><span class="t2">Drive</span></h1>
+  <p class="hero-creed">One Rhythm &nbsp;·&nbsp; One Engine</p>
+  <p class="hero-sub">A racing philosophy where human and machine operate as one — achieving speed, control, and victory through unity.</p>
+  <div class="hero-btns">
+    <a href="#garage" class="btn-a">Enter the Garage</a>
+    <a href="#origin" class="btn-c">Our Origin</a>
+  </div>
+</section>
+
+<!-- ═══ BENTO ═══ -->
+<section id="bento">
+  <div class="inner">
+    <p class="eyebrow rv">System Overview</p>
+    <h2 class="sec-title rv"><span class="ct">Performance</span> <span class="cc">Data</span></h2>
+    <div class="bento-grid rv">
+      <div class="bento-cell bv-cyber">
+        <div class="bento-lbl">Peak Velocity</div>
+        <div class="bento-val">212</div>
+        <div class="bento-sub">mph — McLaren 720S</div>
+      </div>
+      <div class="bento-cell bc2">
+        <div class="bento-lbl">Team Creed</div>
+        <div class="bento-creed-txt">Precision<br>Through <em>Unity.</em></div>
+      </div>
+      <div class="bento-cell bv-amber">
+        <div class="bento-lbl">Max Horsepower</div>
+        <div class="bento-val">710</div>
+        <div class="bento-sub">HP — V8 Twin Turbo</div>
+      </div>
+      <div class="bento-cell bc2">
+        <div class="bento-lbl">HP Comparison</div>
+        <div class="bento-bars">
+          <div class="bento-bar" style="height:100%;background:linear-gradient(to top,rgba(0,242,255,.35),rgba(0,242,255,.8));opacity:.8"></div>
+          <div class="bento-bar" style="height:89%;background:linear-gradient(to top,rgba(255,159,10,.35),rgba(255,159,10,.8));opacity:.7"></div>
+          <div class="bento-bar" style="height:66%;background:linear-gradient(to top,rgba(191,90,242,.35),rgba(191,90,242,.8));opacity:.65"></div>
+        </div>
+        <div style="display:flex;gap:14px;margin-top:7px">
+          <span style="font-family:var(--font-m);font-size:7px;letter-spacing:1.5px;color:rgba(0,242,255,.65)">■ 720S</span>
+          <span style="font-family:var(--font-m);font-size:7px;letter-spacing:1.5px;color:rgba(255,159,10,.65)">■ DB11</span>
+          <span style="font-family:var(--font-m);font-size:7px;letter-spacing:1.5px;color:rgba(191,90,242,.65)">■ LC500</span>
+        </div>
+      </div>
+      <div class="bento-cell">
+        <div class="bento-lbl">Fastest 0–60</div>
+        <div class="bento-val" style="background:linear-gradient(160deg,#d8dce6,#f0f4f8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">2.8s</div>
+        <div class="bento-sub">McLaren 720S</div>
+      </div>
+      <div class="bento-cell">
+        <div class="bento-lbl">Active Fleet</div>
+        <div class="bento-val" style="background:linear-gradient(160deg,#d8dce6,#f0f4f8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">3</div>
+        <div class="bento-sub">Units Synchronized</div>
+      </div>
+      <div class="bento-cell bc3" style="background:linear-gradient(135deg,rgba(0,40,60,.3),rgba(0,242,255,.035));border-color:rgba(0,242,255,.1)">
+        <div class="bento-lbl">Philosophy</div>
+        <div style="font-family:var(--font-m);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(0,242,255,.55);margin-top:6px;line-height:1.7">"Where human and machine become inseparable — motion is seamless, control is instinctive, racing is a single continuous rhythm."</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="div-line"></div>
+
+<!-- ═══ ORIGIN ═══ -->
+<section id="origin">
+  <div class="inner">
+    <div class="origin-2col">
+      <div>
+        <p class="eyebrow rvl">System Log — 001</p>
+        <h2 class="sec-title rvl"><span class="ct">The</span> <span class="cc">Origin</span></h2>
+        <div class="origin-quote rvl">The car <em>speaks.</em><br>Through vibration, resistance,<br>sound, and balance — it<br>constantly communicates.</div>
+        <p class="origin-body rvl">Most drivers force it forward. SYNCHODRIVE learned to listen. Long before the team had a name, there were drivers who noticed something others ignored — the machine is not a tool to be conquered, but a partner to be understood.</p>
+        <p class="origin-body rvl">From this revelation, founder Azarias Vetrovsky built a philosophy: driving is about synchronization, awareness, and respect — treating the machine not as something to dominate, but as an extension of the body itself.</p>
+      </div>
+      <div>
+        <div class="leather-card rvr">
+          <div class="lc-topline"></div>
+          <div class="founder-name">Azarias Vetrovsky</div>
+          <div class="founder-role">Team Captain &amp; Founder</div>
+          <p class="founder-bio">Tempered by loss and resilience, Azarias came to understand the fragility of life and the importance of respect — toward people, machines, and the forces that drive them. His belief: true mastery comes not from domination, but from harmony and connection.</p>
+          <div class="data-strip">
+            <div class="dc"><div class="dl">Philosophy</div><div class="dv">Harmony &amp; Sync</div></div>
+            <div class="dc"><div class="dl">Founded</div><div class="dv">02 · 2026</div></div>
+            <div class="dc"><div class="dl">Creed</div><div class="dv">One Rhythm</div></div>
+            <div class="dc"><div class="dl">Fandom</div><div class="dv">Synchers</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="div-line"></div>
+
+<!-- ═══ CREED ═══ -->
+<section id="creed">
+  <div class="inner">
+    <p class="eyebrow rv" style="justify-content:center">Core Philosophy</p>
+    <div class="creed-statement rv">
+      <span style="background:linear-gradient(160deg,#f0f4f8,#c4cad2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Precision</span>
+      <span style="color:var(--chrome-low)"> Through </span>
+      <span style="background:linear-gradient(160deg,#60f8ff,#00F2FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 22px rgba(0,242,255,.4))">Unity.</span>
+    </div>
+    <div class="panel-grid rv">
+      <div class="panel-cell"><div class="panel-num">01 //</div><div class="panel-name"><span class="panel-led"></span>Synchronization</div><div class="panel-desc">Every action, from driver to machine, executed in perfect harmony. Unity is the foundation of all performance.</div></div>
+      <div class="panel-cell"><div class="panel-num">02 //</div><div class="panel-name"><span class="panel-led"></span>Precision</div><div class="panel-desc">Excellence is achieved through careful, deliberate control. Every maneuver, every input matters.</div></div>
+      <div class="panel-cell"><div class="panel-num">03 //</div><div class="panel-name"><span class="panel-led"></span>Awareness</div><div class="panel-desc">Understanding the car, the track, and oneself is essential. Intuition and observation guide every decision.</div></div>
+      <div class="panel-cell"><div class="panel-num">04 //</div><div class="panel-name"><span class="panel-led"></span>Discipline</div><div class="panel-desc">Mastery requires focus, patience, and continuous refinement. The pursuit never ends.</div></div>
+      <div class="panel-cell"><div class="panel-num">05 //</div><div class="panel-name"><span class="panel-led"></span>Innovation</div><div class="panel-desc">Constantly pushing engineering, technique, and strategy forward to exceed performance limits.</div></div>
+      <div class="panel-cell"><div class="panel-num">06 //</div><div class="panel-name"><span class="panel-led"></span>Passion</div><div class="panel-desc">A relentless dedication to racing, mastery, and the art of driving. This is not a job — it is a calling.</div></div>
+    </div>
+    <!-- Cockpit toggles -->
+    <div class="toggles-row rv">
+      <div class="tog-unit"><div class="tog-lbl">Sync Active</div><div class="tog-sw on" data-tog><div class="tog-knob"></div><div class="tog-led"></div></div></div>
+      <div class="tog-unit"><div class="tog-lbl">Precision</div><div class="tog-sw on" data-tog><div class="tog-knob"></div><div class="tog-led"></div></div></div>
+      <div class="tog-unit"><div class="tog-lbl">Team Link</div><div class="tog-sw on" data-tog><div class="tog-knob"></div><div class="tog-led"></div></div></div>
+      <div class="tog-unit"><div class="tog-lbl">Override</div><div class="tog-sw" data-tog><div class="tog-knob"></div><div class="tog-led"></div></div></div>
+      <div class="tog-unit"><div class="tog-lbl">Telemetry</div><div class="tog-sw on" data-tog><div class="tog-knob"></div><div class="tog-led"></div></div></div>
+    </div>
+    <!-- Pulse divider — @keyframes is in <style>, NOT raw text -->
+    <div class="pulse-divider rv">
+      <div class="pulse-line"></div>
+      <div class="pulse-creed">One Rhythm. One Engine.</div>
+      <div class="pulse-line"></div>
+    </div>
+  </div>
+</section>
+
+<div class="div-line"></div>
+
+<!-- ═══ TABS — Drive Profiles ═══ -->
+<section id="profiles">
+  <div class="inner">
+    <p class="eyebrow rv">Drive Intelligence</p>
+    <h2 class="sec-title rv"><span class="ct">Drive</span> <span class="cc">Profiles</span></h2>
+    <div class="rv">
+      <div class="tab-nav" id="tabNav">
+        <button class="tab-btn active" data-tab="sync">
+          <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Sync Mode
+        </button>
+        <button class="tab-btn" data-tab="pursuit">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+          Pursuit
+        </button>
+        <button class="tab-btn" data-tab="touring">
+          <svg viewBox="0 0 24 24"><path d="M3 17l4-8 4 4 4-6 4 10"/><polyline points="1 17 3 17 21 17 23 17"/></svg>
+          Grand Touring
+        </button>
+        <button class="tab-btn" data-tab="training">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+          Training
+        </button>
+      </div>
+      <div class="tab-body">
+        <div class="tab-pane active" id="tab-sync">
+          <div class="profile-card" style="--cc:var(--cyber)">
+            <div class="profile-icon"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+            <div class="profile-lbl">Mode 01</div><div class="profile-name">Full Sync</div>
+            <div class="profile-desc">Maximum synchronization between driver and vehicle. All telemetry active. Responses tuned to anticipate driver intent.</div>
+          </div>
+          <div class="profile-card" style="--cc:var(--cyber)">
+            <div class="profile-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
+            <div class="profile-lbl">Neural Link</div><div class="profile-name">Intuitive Response</div>
+            <div class="profile-desc">AI co-pilot learns your patterns in real time, reducing cognitive load and amplifying precision output.</div>
+          </div>
+          <div class="profile-card" style="--cc:var(--cyber)">
+            <div class="profile-icon"><svg viewBox="0 0 24 24"><path d="M1 6l11 5L23 6"/><path d="M1 18l11-5 11 5"/><line x1="1" y1="12" x2="23" y2="12"/></svg></div>
+            <div class="profile-lbl">Telemetry</div><div class="profile-name">Live Data Feed</div>
+            <div class="profile-desc">Continuous stream of mechanical health, lap delta, tire temps, and sync score broadcast to the pit.</div>
+          </div>
+        </div>
+        <div class="tab-pane" id="tab-pursuit">
+          <div class="profile-card" style="--cc:var(--amber)">
+            <div class="profile-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg></div>
+            <div class="profile-lbl">Mode 02</div><div class="profile-name">Intercept</div>
+            <div class="profile-desc">Optimized for closing gaps rapidly. Engine mapped for aggressive mid-range torque delivery and late braking.</div>
+          </div>
+          <div class="profile-card" style="--cc:var(--amber)">
+            <div class="profile-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+            <div class="profile-lbl">Aero</div><div class="profile-name">High Downforce</div>
+            <div class="profile-desc">Active aero flaps deploy for maximum cornering grip. Sacrifices top speed for surgical corner control.</div>
+          </div>
+          <div class="profile-card" style="--cc:var(--amber)">
+            <div class="profile-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+            <div class="profile-lbl">Timing</div><div class="profile-name">Sector Analysis</div>
+            <div class="profile-desc">Real-time sector breakdowns with ideal racing line overlay projected on HUD for continuous improvement.</div>
+          </div>
+        </div>
+        <div class="tab-pane" id="tab-touring">
+          <div class="profile-card" style="--cc:var(--purple)">
+            <div class="profile-icon"><svg viewBox="0 0 24 24"><polyline points="3 17 7 9 11 13 15 7 19 17"/><polyline points="1 17 3 17 21 17 23 17"/></svg></div>
+            <div class="profile-lbl">Mode 03</div><div class="profile-name">Grand Tourer</div>
+            <div class="profile-desc">Long-haul comfort settings. Engine detuned for efficiency. Suspension softened for extended drive comfort.</div>
+          </div>
+          <div class="profile-card" style="--cc:var(--purple)">
+            <div class="profile-icon"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+            <div class="profile-lbl">Ambiance</div><div class="profile-name">Interior Harmony</div>
+            <div class="profile-desc">Cabin sound profile optimized to highlight the engine note while damping road noise below the harmonic threshold.</div>
+          </div>
+          <div class="profile-card" style="--cc:var(--purple)">
+            <div class="profile-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+            <div class="profile-lbl">Route</div><div class="profile-name">Neural Navigation</div>
+            <div class="profile-desc">AI-mapped scenic routing that avoids traffic, prioritizes driver-engaging roads, and estimates sync scores per route.</div>
+          </div>
+        </div>
+        <div class="tab-pane" id="tab-training">
+          <div class="profile-card" style="--cc:var(--green)">
+            <div class="profile-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+            <div class="profile-lbl">Mode 04</div><div class="profile-name">Simulator</div>
+            <div class="profile-desc">Linked track training replays your real-world session in a virtual environment to refine technique safely.</div>
+          </div>
+          <div class="profile-card" style="--cc:var(--green)">
+            <div class="profile-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+            <div class="profile-lbl">Analytics</div><div class="profile-name">Performance Review</div>
+            <div class="profile-desc">Post-session AI report grades your sync score, highlights deviations from ideal input, and sets targets.</div>
+          </div>
+          <div class="profile-card" style="--cc:var(--green)">
+            <div class="profile-icon"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+            <div class="profile-lbl">Coaching</div><div class="profile-name">Mastery Path</div>
+            <div class="profile-desc">Personalized curriculum from entry-level awareness training to advanced mechanical rhythm and endurance protocols.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="div-line"></div>
+
+<!-- ═══ GARAGE ═══ -->
+<section id="garage">
+  <div class="inner">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:32px">
+      <div>
+        <p class="eyebrow rv">Fleet Manifest</p>
+        <h2 class="sec-title rv" style="margin-bottom:0"><span class="ct">The</span> <span class="cc">Garage</span></h2>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font-family:var(--font-m);font-size:8px;letter-spacing:2px;color:rgba(0,242,255,.4);text-transform:uppercase" class="rv">
+        <div class="nav-led"></div> 3 Units Online
+      </div>
+    </div>
+    <!-- Radio filter -->
+    <div class="rv" style="margin-bottom:22px">
+      <div class="radio-row" id="carRadio">
+        <label class="radio-opt"><input type="radio" name="cf" value="all" checked><span class="radio-lbl"><span class="radio-knob"></span>All Units</span></label>
+        <label class="radio-opt"><input type="radio" name="cf" value="apex"><span class="radio-lbl"><span class="radio-knob"></span>Interceptor</span></label>
+        <label class="radio-opt"><input type="radio" name="cf" value="tourer"><span class="radio-lbl"><span class="radio-knob"></span>Grand Tourer</span></label>
+        <label class="radio-opt"><input type="radio" name="cf" value="cruiser"><span class="radio-lbl"><span class="radio-knob"></span>Cruiser</span></label>
+      </div>
+    </div>
+    <!-- Fleet grid — skeletons initially -->
+    <div class="fleet-grid" id="fleetGrid">
+      <div class="skel-card" id="sk1"><div class="sk-rail skeleton"></div><div class="sk-line skeleton w60"></div><div class="sk-line skeleton w40"></div><div class="sk-rect skeleton"></div><div class="sk-row"><div class="skeleton"></div><div class="skeleton"></div></div></div>
+      <div class="skel-card" id="sk2"><div class="sk-rail skeleton"></div><div class="sk-line skeleton w80"></div><div class="sk-line skeleton w40"></div><div class="sk-rect skeleton"></div><div class="sk-row"><div class="skeleton"></div><div class="skeleton"></div></div></div>
+      <div class="skel-card" id="sk3"><div class="sk-rail skeleton"></div><div class="sk-line skeleton w60"></div><div class="sk-line skeleton w60"></div><div class="sk-rect skeleton"></div><div class="sk-row"><div class="skeleton"></div><div class="skeleton"></div></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="div-line"></div>
+
+<!-- ═══ CAROUSEL ═══ -->
+<section id="stories">
+  <div class="inner">
+    <p class="eyebrow rv">Community</p>
+    <h2 class="sec-title rv"><span class="ct">Syncher</span> <span class="cc">Stories</span></h2>
+    <div class="carousel-wrap rv">
+      <div class="carousel-track" id="carTrack">
+        <div class="carousel-slide"><div class="slide-num">01</div><div><div class="slide-quote">"The moment I understood that the car wasn't an obstacle but a <em>conversation partner,</em> everything changed."</div><div class="slide-author">— Mira K., Syncher since Day One</div><span class="slide-tag">Interceptor Division</span></div></div>
+        <div class="carousel-slide"><div class="slide-num">02</div><div><div class="slide-quote">"SYNCHODRIVE didn't just teach me to drive faster. It taught me to <em>listen deeper</em> to every vibration."</div><div class="slide-author">— Tavian R., Grand Tourer Pilot</div><span class="slide-tag">DB11 Division</span></div></div>
+        <div class="carousel-slide"><div class="slide-num">03</div><div><div class="slide-quote">"In a world obsessed with raw power, this team taught me that <em>harmony is the ultimate horsepower.</em>"</div><div class="slide-author">— Lyra S., Cruiser Division</div><span class="slide-tag">LC500 Division</span></div></div>
+        <div class="carousel-slide"><div class="slide-num">04</div><div><div class="slide-quote">"The creed 'One Rhythm. One Engine.' isn't a slogan — it's a <em>state of mind</em> you train for daily."</div><div class="slide-author">— Commander D., Team Captain</div><span class="slide-tag">Leadership Core</span></div></div>
+      </div>
+    </div>
+    <div class="carousel-controls rv">
+      <button class="car-btn" id="carPrev"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></button>
+      <div class="carousel-dots" id="carDots"></div>
+      <button class="car-btn" id="carNext"><svg viewBox="0 0 24 24"><polyline points="9,18 15,12 9,6"/></svg></button>
+    </div>
+  </div>
+</section>
+
+<div class="div-line"></div>
+
+<!-- ═══ COMMUNITY ═══ -->
+<section id="community">
+  <div class="inner">
+    <div class="community-2col">
+      <div>
+        <p class="eyebrow rvl">Official Fandom</p>
+        <h2 class="sec-title rvl"><span class="ct">The</span> <span class="cc">Synchers</span></h2>
+        <div class="synchers-pill rvl"><div class="nav-led" style="width:5px;height:5px"></div>Official Fandom · Active</div>
+        <p class="comm-body rvl">The Synchers are more than fans — they are an extension of the SYNCHODRIVE philosophy. Every member lives by the creed: One Rhythm. One Engine.</p>
+        <p class="comm-body rvl">Whether you drive a hypercar or a daily commuter, if you believe that harmony outpaces brute force — you are already a Syncher.</p>
+      </div>
+      <div>
+        <div class="partner-plate rvr">
+          <div class="pp-rail"></div><div class="pp-side"></div>
+          <div class="pp-title">Partnerships &amp; Opportunities</div>
+          <p class="pp-body">SYNCHODRIVE is open to sponsorships, collaborations, and performance opportunities aligned with precision, innovation, and synchronized excellence.</p>
+          <p class="pp-body">From car shows to live demonstrations, the team welcomes brands, creators, and motorsport enthusiasts.</p>
+          <div class="pp-tags">
+            <span class="pp-tag">Car Shows</span><span class="pp-tag">Exhibitions</span>
+            <span class="pp-tag">Tire Streaks</span><span class="pp-tag">Live Demos</span>
+            <span class="pp-tag">Sponsorships</span><span class="pp-tag">Brand Collab</span>
+          </div>
+          <a href="#" class="btn-a" id="contactBtn" style="display:inline-block;font-size:8px;padding:12px 22px">Initiate Contact</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="div-line"></div>
+
+<!-- ═══ ACCORDION ═══ -->
+<section id="protocols">
+  <div class="inner">
+    <p class="eyebrow rv">Operations Manual</p>
+    <h2 class="sec-title rv"><span class="ct">Team</span> <span class="cc">Protocols</span></h2>
+    <div class="acc-cols rv">
+      <div class="accordion">
+        <div class="acc-item open">
+          <div class="acc-header"><div class="acc-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="acc-title">Weekly Training</div><div class="acc-chevron"><svg viewBox="0 0 24 24"><polyline points="6,9 12,15 18,9"/></svg></div></div>
+          <div class="acc-body"><div class="acc-body-inner">Driver Training runs 1–2 times per week — on-track or simulator sessions focused on synchronization, precision, and rhythm exercises. Optional personal development including fitness and mental training encouraged.</div></div>
+        </div>
+        <div class="acc-item">
+          <div class="acc-header"><div class="acc-icon"><svg viewBox="0 0 24 24"><polygon points="19 7 12 2 5 7 5 17 12 22 19 17 19 7"/></svg></div><div class="acc-title">Monthly Track Days</div><div class="acc-chevron"><svg viewBox="0 0 24 24"><polyline points="6,9 12,15 18,9"/></svg></div></div>
+          <div class="acc-body"><div class="acc-body-inner">Full Track Day / Endurance Training held 1–2 days per month. Longer sessions to build stamina, test strategies, and enhance team coordination across extended high-speed runs.</div></div>
+        </div>
+        <div class="acc-item">
+          <div class="acc-header"><div class="acc-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg></div><div class="acc-title">Vehicle Maintenance</div><div class="acc-chevron"><svg viewBox="0 0 24 24"><polyline points="6,9 12,15 18,9"/></svg></div></div>
+          <div class="acc-body"><div class="acc-body-inner">One dedicated maintenance and testing session per month. Inspect, tune, and test vehicles. Drivers are encouraged to understand the mechanical systems of their assigned units.</div></div>
+        </div>
+        <div class="acc-item">
+          <div class="acc-header"><div class="acc-icon"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div><div class="acc-title">Engineering Workshop</div><div class="acc-chevron"><svg viewBox="0 0 24 24"><polyline points="6,9 12,15 18,9"/></svg></div></div>
+          <div class="acc-body"><div class="acc-body-inner">Monthly innovation workshop for brainstorming, testing new techniques, and experimenting with vehicle modifications aligned with the team's philosophy.</div></div>
+        </div>
+      </div>
+      <div class="accordion">
+        <div class="acc-item">
+          <div class="acc-header"><div class="acc-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="acc-title">Performance Review</div><div class="acc-chevron"><svg viewBox="0 0 24 24"><polyline points="6,9 12,15 18,9"/></svg></div></div>
+          <div class="acc-body"><div class="acc-body-inner">Monthly performance review and goal-setting session. Evaluate individual and team progress, analyze telemetry data, and set measurable targets for the upcoming cycle.</div></div>
+        </div>
+        <div class="acc-item">
+          <div class="acc-header"><div class="acc-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="acc-title">Team Building</div><div class="acc-chevron"><svg viewBox="0 0 24 24"><polyline points="6,9 12,15 18,9"/></svg></div></div>
+          <div class="acc-body"><div class="acc-body-inner">Two team-building activities per month — kart racing, escape rooms, or social outings designed to strengthen trust, communication, and collective harmony.</div></div>
+        </div>
+        <div class="acc-item">
+          <div class="acc-header"><div class="acc-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.07 6.07l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 17l-.08-.08z"/></svg></div><div class="acc-title">Community Events</div><div class="acc-chevron"><svg viewBox="0 0 24 24"><polyline points="6,9 12,15 18,9"/></svg></div></div>
+          <div class="acc-body"><div class="acc-body-inner">Optional 1–2 community or promotional events per month. Engage with Synchers, participate in exhibitions, and host demonstration events promoting the SYNCHODRIVE philosophy.</div></div>
+        </div>
+        <div class="acc-item">
+          <div class="acc-header"><div class="acc-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg></div><div class="acc-title">Strategy Sessions</div><div class="acc-chevron"><svg viewBox="0 0 24 24"><polyline points="6,9 12,15 18,9"/></svg></div></div>
+          <div class="acc-body"><div class="acc-body-inner">Monthly team briefing covering upcoming race events, performance data review, competitor analysis, and tactical improvements for each vehicle unit.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-in">
+    <div class="footer-top">
+      <div class="footer-logo">Synchro<em>Drive</em></div>
+      <div class="footer-creed">One Rhythm. One Engine.</div>
+    </div>
+    <div class="footer-bot">
+      <div class="footer-copy">© 2026 SynchroDrive — Azarias Vetrovsky, Team Captain</div>
+      <div class="footer-fan">Official Fandom: Synchers</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ─────────── CURSOR ─────────── */
+const cur=document.getElementById('cur'),crRing=document.getElementById('curRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function lag(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;crRing.style.left=rx+'px';crRing.style.top=ry+'px';requestAnimationFrame(lag)})();
+
+/* ─────────── LOADER ─────────── */
+const ldNeedle=document.getElementById('ldNeedle'),ldArc=document.getElementById('ldArc');
+const C2=2*Math.PI*37,arcLen2=C2*.75; let prog=0;
+const ldTmr=setInterval(()=>{
+  prog=Math.min(prog+1.1,100);
+  const p=prog/100;
+  if(ldNeedle) ldNeedle.setAttribute('transform',`rotate(${135+p*270} 55 55)`);
+  if(ldArc) ldArc.setAttribute('stroke-dasharray',`${(arcLen2*p).toFixed(2)} ${(C2-arcLen2*p).toFixed(2)}`);
+  if(prog>=100) clearInterval(ldTmr);
+},26);
+setTimeout(()=>{
+  document.getElementById('loader').classList.add('out');
+  buildFleet();
+  setTimeout(()=>showToast('sync','System Online','All units synchronized'),700);
+  setTimeout(()=>showToast('check','Garage Ready','Fleet data loaded successfully'),2000);
+  setTimeout(()=>showSnackbar('Engine telemetry synced'),3400);
+},2700);
+
+/* ─────────── NAV + HAMBURGER ─────────── */
+const ham=document.getElementById('ham'),drawer=document.getElementById('navDrawer');
+ham.addEventListener('click',()=>{ham.classList.toggle('open');drawer.classList.toggle('open')});
+drawer.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ham.classList.remove('open');drawer.classList.remove('open')}));
+
+/* ─────────── BREADCRUMB ─────────── */
+const bcItems=document.querySelectorAll('.bc-item');
+const SECTS=['hero','bento','origin','creed','profiles','garage','stories','community','protocols'];
+const sEls=SECTS.map(id=>document.getElementById(id)).filter(Boolean);
+function updateBC(){
+  let curr='hero';
+  sEls.forEach(s=>{ if(window.scrollY>=s.offsetTop-100) curr=s.id });
+  bcItems.forEach(i=>i.classList.toggle('active',i.dataset.section===curr));
+  // Scroll active item into view in breadcrumb
+  const active=document.querySelector('.bc-item.active');
+  if(active){const bc=document.getElementById('breadcrumb');bc.scrollLeft=active.offsetLeft-40}
+}
+window.addEventListener('scroll',updateBC,{passive:true});
+
+/* ─────────── REVEAL ─────────── */
+const rvEls=document.querySelectorAll('.rv,.rvl,.rvr');
+const obs=new IntersectionObserver(en=>en.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target)}}),{threshold:.08});
+rvEls.forEach(el=>obs.observe(el));
+
+/* ─────────── TABS ─────────── */
+document.getElementById('tabNav').addEventListener('click',e=>{
+  const btn=e.target.closest('.tab-btn'); if(!btn) return;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  const p=document.getElementById('tab-'+btn.dataset.tab); if(p) p.classList.add('active');
+});
+
+/* ─────────── ACCORDION ─────────── */
+document.querySelectorAll('.acc-header').forEach(h=>{
+  h.addEventListener('click',()=>{
+    const item=h.closest('.acc-item'),isOpen=item.classList.contains('open');
+    item.closest('.accordion').querySelectorAll('.acc-item').forEach(i=>i.classList.remove('open'));
+    if(!isOpen) item.classList.add('open');
+  });
+});
+
+/* ─────────── TOGGLES ─────────── */
+document.querySelectorAll('[data-tog]').forEach(sw=>{
+  sw.addEventListener('click',()=>{
+    sw.classList.toggle('on');
+    sw.style.transform='scale(.94)';
+    setTimeout(()=>sw.style.transform='',120);
+    const on=sw.classList.contains('on');
+    const lbl=sw.closest('.tog-unit')?.querySelector('.tog-lbl')?.textContent||'System';
+    showToast(on?'check':'warn',on?'Activated':'Standby',`${lbl} — ${on?'Online':'Offline'}`);
+  });
+});
+
+/* ─────────── GAUGE BUILDER ─────────── */
+function buildGauge(parent,val,max,unit,color){
+  const cx=45,cy=45,r=34,C=2*Math.PI*r,arc=C*.75,gap=C-arc,rot=-135;
+  const pct=Math.min(val/max,1),vLen=arc*pct;
+  let ticks='';
+  for(let i=0;i<=8;i++){
+    const a=((rot-90)+(i/8)*270)*Math.PI/180;
+    const r1=i%2===0?29:31,r2=34;
+    const x1=cx+r1*Math.cos(a),y1=cy+r1*Math.sin(a),x2=cx+r2*Math.cos(a),y2=cy+r2*Math.sin(a);
+    ticks+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${i%2===0?'rgba(200,210,220,.45)':'rgba(200,210,220,.16)'}" stroke-width="${i%2===0?1.4:1}"/>`;
+  }
+  const nr=((rot-90)+pct*270)*Math.PI/180;
+  const nx=cx+28*Math.cos(nr),ny=cy+28*Math.sin(nr);
+  const id='g'+Math.random().toString(36).slice(2,7);
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox','0 0 90 90');svg.style.cssText='width:90px;height:90px';
+  svg.innerHTML=`
+    <defs>
+      <linearGradient id="${id}cr" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#2e3440"/><stop offset="30%" stop-color="#b8c0c8"/>
+        <stop offset="60%" stop-color="#505860"/><stop offset="100%" stop-color="#a8b0b8"/>
+      </linearGradient>
+      <radialGradient id="${id}fc" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#1c202a"/><stop offset="100%" stop-color="#0a0c12"/>
+      </radialGradient>
+      <filter id="${id}gl"><feGaussianBlur stdDeviation="1" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
+    </defs>
+    <circle cx="${cx}" cy="${cy}" r="43" fill="url(#${id}cr)"/>
+    <circle cx="${cx}" cy="${cy}" r="40" fill="url(#${id}fc)"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#141820" stroke-width="6" stroke-dasharray="${arc.toFixed(1)} ${gap.toFixed(1)}" transform="rotate(${rot} ${cx} ${cy})" stroke-linecap="round"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="3" stroke-dasharray="${vLen.toFixed(1)} ${(C-vLen).toFixed(1)}" transform="rotate(${rot} ${cx} ${cy})" stroke-linecap="round" filter="url(#${id}gl)" opacity=".9"/>
+    ${ticks}
+    <line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="${color}" stroke-width="1.4" stroke-linecap="round" filter="url(#${id}gl)"/>
+    <circle cx="${cx}" cy="${cy}" r="4" fill="#1e222e" stroke="${color}" stroke-width="1"/>
+    <circle cx="${cx}" cy="${cy}" r="1.8" fill="${color}" opacity=".8"/>
+    <text x="${cx}" y="${cy+17}" text-anchor="middle" font-family="'Space Mono',monospace" font-size="6.5" fill="${color}" opacity=".75" letter-spacing="0.5">${val} ${unit}</text>
+    <ellipse cx="${cx-7}" cy="${cy-11}" rx="14" ry="9" fill="white" opacity=".016"/>`;
+  parent.appendChild(svg);
+}
+
+/* ─────────── CAR DATA ─────────── */
+const CARS=[
+  {cat:'High-Performance Interceptor',sub:'The Apex',name:'McLaren 720S',filter:'apex',
+   src:'https://www.transparentpng.com/thumb/mclaren/720s-silver-png.png',
+   hp:710,spd:212,engine:'4.0L TT V8','060':'2.8s',config:'RWD MR',
+   desc:'The Apex unit. Built for surgical precision at extreme velocities. The McLaren 720S represents the peak of interceptor-class performance within the SYNCHODRIVE fleet — engineered for drivers who have mastered complete synchronization.'},
+  {cat:'Long-Range Pursuit',sub:'The Grand Tourer',name:'Aston Martin DB11 AMR',filter:'tourer',
+   src:'https://www.transparentpng.com/thumb/aston-martin/aston-martin-db11-png.png',
+   hp:630,spd:208,engine:'5.2L TT V12','060':'3.7s',config:'RWD FR',
+   desc:'The Grand Tourer. A fusion of elegance and velocity. The DB11 AMR channels sustained harmony — not explosive aggression, but relentless, refined pursuit across any distance.'},
+  {cat:'Luxury Lifestyle / Casual Stroll',sub:'The Cruiser',name:'Lexus LC500',filter:'cruiser',
+   src:'https://www.transparentpng.com/thumb/lexus/lc500-blue-lighting.png',
+   hp:471,spd:168,engine:'5.0L NA V8','060':'4.4s',config:'RWD FR',
+   desc:'The Cruiser. An embodiment of harmony in motion. The LC500 teaches drivers that control and awareness matter more than raw output — the entry point to the SYNCHODRIVE philosophy.'}
+];
+
+function buildFleet(filter='all'){
+  const grid=document.getElementById('fleetGrid');
+  grid.innerHTML='';
+  const filtered=CARS.filter(c=>filter==='all'||c.filter===filter);
+  filtered.forEach((car,i)=>{
+    const div=document.createElement('div');
+    div.className='car-card rv';
+    div.style.transitionDelay=(i*.07)+'s';
+    div.innerHTML=`
+      <div class="card-rail"></div>
+      <div class="card-top">
+        <div class="card-cat">${car.cat}</div>
+        <div class="card-sub">${car.sub}</div>
+        <div class="card-main">${car.name}</div>
+      </div>
+      <div class="car-visual">
+        <img src="${car.src}" alt="${car.name}" class="car-img"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="car-ph" style="display:none">
+          <div class="ph-icon"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div>
+          <div class="ph-lbl">${car.name}</div>
+        </div>
+      </div>
+      <div class="card-gauges"></div>
+      <div class="card-readout">
+        <div class="ro-item"><div class="ro-l">Engine</div><div class="ro-v">${car.engine}</div></div>
+        <div class="ro-div"></div>
+        <div class="ro-item"><div class="ro-l">0–60</div><div class="ro-v">${car['060']}</div></div>
+        <div class="ro-div"></div>
+        <div class="ro-item"><div class="ro-l">Config</div><div class="ro-v">${car.config}</div></div>
+      </div>
+      <div class="card-cta" data-idx="${CARS.indexOf(car)}">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        View Full Specs
+      </div>`;
+    grid.appendChild(div);
+    const gw=div.querySelector('.card-gauges');
+    const w1=document.createElement('div');w1.className='gauge-wrap';
+    buildGauge(w1,car.hp,800,'HP','#00F2FF');
+    const l1=document.createElement('div');l1.className='gauge-lbl';l1.textContent='Horsepower';w1.appendChild(l1);
+    const w2=document.createElement('div');w2.className='gauge-wrap';
+    buildGauge(w2,car.spd,230,'MPH','#FF9F0A');
+    const l2=document.createElement('div');l2.className='gauge-lbl';l2.textContent='Top Speed';w2.appendChild(l2);
+    gw.appendChild(w1);gw.appendChild(w2);
+    setTimeout(()=>div.classList.add('vis'),40+i*70);
+  });
+  document.querySelectorAll('.card-cta').forEach(btn=>{
+    btn.addEventListener('click',()=>openModal(parseInt(btn.dataset.idx)));
+  });
+}
+document.querySelectorAll('[name=cf]').forEach(r=>r.addEventListener('change',()=>buildFleet(r.value)));
+
+/* ─────────── CAROUSEL ─────────── */
+const track=document.getElementById('carTrack');
+const slides=track.querySelectorAll('.carousel-slide');
+const dotsEl=document.getElementById('carDots');
+let curS=0;
+slides.forEach((_,i)=>{
+  const d=document.createElement('div');d.className='c-dot'+(i===0?' active':'');
+  d.addEventListener('click',()=>goSlide(i));dotsEl.appendChild(d);
+});
+function goSlide(n){
+  curS=(n+slides.length)%slides.length;
+  track.style.transform=`translateX(-${curS*100}%)`;
+  document.querySelectorAll('.c-dot').forEach((d,i)=>d.classList.toggle('active',i===curS));
+}
+document.getElementById('carPrev').addEventListener('click',()=>goSlide(curS-1));
+document.getElementById('carNext').addEventListener('click',()=>goSlide(curS+1));
+let aSl=setInterval(()=>goSlide(curS+1),5000);
+track.parentElement.addEventListener('mouseenter',()=>clearInterval(aSl));
+track.parentElement.addEventListener('mouseleave',()=>{aSl=setInterval(()=>goSlide(curS+1),5000)});
+
+/* ─────────── MODAL ─────────── */
+function openModal(idx){
+  const car=CARS[idx];
+  document.getElementById('mCat').textContent=car.cat;
+  document.getElementById('mName').textContent=car.name;
+  document.getElementById('mImg').src=car.src;
+  document.getElementById('mDesc').textContent=car.desc;
+  const sg=document.getElementById('mSpecs');sg.innerHTML='';
+  [{l:'Engine',v:car.engine},{l:'Horsepower',v:car.hp+' HP'},{l:'0–60 mph',v:car['060']},
+   {l:'Top Speed',v:car.spd+' mph'},{l:'Config',v:car.config},{l:'Division',v:car.sub}
+  ].forEach(s=>sg.innerHTML+=`<div class="mspec"><div class="ml">${s.l}</div><div class="mv">${s.v}</div></div>`);
+  const mg=document.getElementById('mGauges');mg.innerHTML='';
+  const gw1=document.createElement('div');gw1.className='gauge-wrap';
+  buildGauge(gw1,car.hp,800,'HP','#00F2FF');
+  const gl1=document.createElement('div');gl1.className='gauge-lbl';gl1.textContent='Horsepower';gw1.appendChild(gl1);
+  const gw2=document.createElement('div');gw2.className='gauge-wrap';
+  buildGauge(gw2,car.spd,230,'MPH','#FF9F0A');
+  const gl2=document.createElement('div');gl2.className='gauge-lbl';gl2.textContent='Top Speed';gw2.appendChild(gl2);
+  mg.appendChild(gw1);mg.appendChild(gw2);
+  document.getElementById('modal').classList.add('open');
+}
+document.getElementById('mClose').addEventListener('click',()=>document.getElementById('modal').classList.remove('open'));
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open')});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('modal').classList.remove('open')});
+
+/* ─────────── TOAST ─────────── */
+const TOAST_ICONS={
+  sync:'<svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+  check:'<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>',
+  warn:'<svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+};
+const TOAST_TYPE={sync:'t-cyber',check:'t-green',warn:'t-amber'};
+function showToast(type,title,msg){
+  const ct=document.getElementById('toast-ct');
+  const t=document.createElement('div');t.className='toast';t.style.position='relative';
+  t.innerHTML=`<div class="toast-ico ${TOAST_TYPE[type]||'t-cyber'}">${TOAST_ICONS[type]||TOAST_ICONS.sync}</div><div><div class="toast-title">${title}</div><div class="toast-msg">${msg}</div></div><button class="toast-close">✕</button><div class="toast-bar" style="width:100%"></div>`;
+  ct.appendChild(t);
+  t.querySelector('.toast-close').addEventListener('click',()=>dimissToast(t));
+  requestAnimationFrame(()=>t.classList.add('show'));
+  const bar=t.querySelector('.toast-bar');
+  bar.style.transition='width 3.5s linear';
+  setTimeout(()=>bar.style.width='0%',60);
+  t._timer=setTimeout(()=>dimissToast(t),3700);
+}
+function dimissToast(t){clearTimeout(t._timer);t.classList.add('hide');setTimeout(()=>t.remove(),400)}
+
+/* ─────────── SNACKBAR ─────────── */
+function showSnackbar(txt){
+  const sb=document.getElementById('snackbar');
+  document.getElementById('snkTxt').textContent=txt;
+  sb.classList.add('show');
+  const ti=setTimeout(()=>sb.classList.remove('show'),4200);
+  document.getElementById('snkAction').onclick=()=>{clearTimeout(ti);sb.classList.remove('show')};
+}
+document.getElementById('contactBtn').addEventListener('click',e=>{
+  e.preventDefault();
+  showSnackbar('Partnership inquiry received — we\'ll sync up soon.');
+  showToast('check','Request Received','Contact logged successfully');
+});
+</script>
+</body>
+</html>
